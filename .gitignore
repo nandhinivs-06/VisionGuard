@@ -1,0 +1,7 @@
+# Large data is not in git: run `python -m dataset_prep.run_all` to download and rebuild it.
+# Only the metadata (video list, frozen split, frame index, report) is tracked.
+data/*
+!data/metadata/
+__pycache__/
+*.pyc
+runs/

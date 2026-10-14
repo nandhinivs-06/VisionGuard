@@ -1,0 +1,5 @@
+opencv-python>=4.8,<4.11   # 4.11+/5.x pulls numpy 2, which breaks pandas 1.x
+numpy>=1.24,<2
+requests>=2.28
+# for training the model on data/yolo (Member 2)
+ultralytics>=8.0
