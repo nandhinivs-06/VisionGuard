@@ -1,0 +1,26 @@
+To: onfire2023@unisa.it
+Subject: Request for ONFIRE 2023 training set - academic project
+
+Dear ONFIRE 2023 organisers,
+
+We are a team of students working on an academic project on real-time fire and
+smoke detection from CCTV video, and we would like to use the ONFIRE 2023
+dataset (training videos and fire-start annotations) for research and
+educational purposes only.
+
+Team name: <TEAM NAME>
+Institution: <UNIVERSITY / COLLEGE>
+Supervisor: <SUPERVISOR NAME, if any>
+Members: <NAMES>
+
+We will cite the ONFIRE 2023 contest and the related publications in any report
+or publication, and we will not redistribute the data.
+
+Could you please share the download link for the training set and its
+annotations?
+
+Thank you very much for your time.
+
+Best regards,
+<YOUR NAME>
+<EMAIL>

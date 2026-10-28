@@ -1,0 +1,25 @@
+video,label,fire_start,duration_s,alerts,first_alert_s,alert_types,detected,delay_s,false_alarms,frames,analysed,yolo_fps,realtime_factor
+firesense__negsVideo3.860.avi,negative,,15.9,0,,,,,0,160,80,21.5,1.71
+firesense__negsVideo6.863.avi,negative,,45.6,0,,,,,0,1142,229,17.9,3.21
+firesense__posVideo2.871.avi,positive,0.0,17.0,3,4.0,fire smoke,True,4.0,0,510,85,18.2,3.4
+firesense__posVideo6.875.avi,positive,0.0,25.7,3,1.2,fire smoke,True,1.2,0,258,129,18.2,3.21
+firesense__posVideo8.877.avi,positive,0.0,17.1,1,1.4,fire,True,1.4,0,513,86,18.1,3.18
+firesense__testneg01.807.avi,negative,,10.0,0,,,,,0,251,51,17.4,3.2
+firesense__testneg04.810.avi,negative,,113.6,0,,,,,0,2840,568,17.8,2.97
+firesense__testpos13.829.avi,positive,0.0,15.4,2,1.4,smoke,True,1.4,0,463,78,16.9,3.27
+hf_fire_videos__14296772_3840_2160_24fps.mp4,positive,0.0,23.8,2,1.3,fire smoke,True,1.3,0,571,115,18.7,0.75
+hf_fire_videos__fire28_clip_007.mp4,negative,,10.0,0,,,,,0,250,50,17.8,3.23
+kmu__outdoor_daytime_10m_gasoline_CCD_001.avi,positive,0.0,145.4,5,15.2,fire smoke,True,15.2,0,3491,699,17.1,3.44
+kmu__outdoor_daytime_20m_heptane_CCD_001.avi,positive,0.0,184.5,9,22.9,fire smoke,True,22.9,0,4430,886,17.4,3.48
+kmu__outdoor_daytime_30m_gasoline_CCD_001.avi,positive,0.0,290.8,13,14.4,fire smoke,True,14.4,0,6981,1397,17.2,3.43
+kmu__outdoor_night_10m_gasoline_CCD_001.avi,positive,0.0,50.3,0,,,False,,0,1208,242,17.1,3.21
+kmu__smoke_or_flame_like_object_1.avi,negative,,7.1,0,,,,,0,171,35,17.9,3.46
+kmu__smoke_or_flame_like_object_4.avi,negative,,37.6,0,,,,,0,904,181,17.5,3.12
+ustc_vsd__Dry_leaf_smoke_02.avi,positive,0.0,48.0,1,12.8,smoke,True,12.8,0,1200,240,18.4,3.4
+ustc_vsd__Waving_leaves_895.avi,negative,,35.8,0,,,,,0,895,179,17.4,3.48
+visifire__CarLights1.avi,negative,,15.4,1,4.8,fire,,,1,155,78,17.6,3.32
+visifire__fire1.avi,positive,0.0,47.1,3,13.2,fire smoke,True,13.2,0,708,236,16.5,3.14
+visifire__forest5.avi,positive,0.0,14.3,2,1.2,fire smoke,True,1.2,0,216,72,16.3,3.11
+visifire__sEmptyR1.avi,positive,0.0,28.9,0,,,False,,0,483,161,15.5,2.76
+visifire__ShorterIsyamNight.avi,positive,0.0,66.5,0,,,False,,0,1663,333,18.2,3.29
+visifire__TunnelAccident3.avi,positive,0.0,6.7,0,,,False,,0,102,34,17.5,3.3

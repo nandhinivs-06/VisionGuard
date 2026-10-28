@@ -1,0 +1,460 @@
+<!doctype html>
+<html lang="en" data-theme="dark" data-accent="blue">
+<head>
+  <meta charset="utf-8">
+  <script>
+    /* apply the saved theme before the page is drawn (no flash of the wrong theme) */
+    (function () {
+      try {
+        var t = localStorage.getItem("vg-theme") || "dark", a = localStorage.getItem("vg-accent") || "blue";
+        if (t === "auto") t = matchMedia("(prefers-color-scheme: light)").matches ? "light" : "dark";
+        document.documentElement.dataset.theme = t;
+        document.documentElement.dataset.accent = a;
+      } catch (e) { /* storage blocked: keep defaults */ }
+    })();
+  </script>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>VisionGuard · Fire & Smoke Monitoring</title>
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'><path fill='%23ff4d3d' d='M12 2c1 4 5 5.5 5 10.5A5 5 0 0 1 7 12.5c0-2 1-3.5 2.2-4.6C9.6 10 11 10.6 11 10.6 10.4 7.3 12 4.5 12 2z'/></svg>">
+  <link rel="stylesheet" href="/static/styles.css">
+</head>
+<body>
+  <!-- ============================== header ============================== -->
+  <header class="topbar">
+    <div class="brand">
+      <svg class="brand-logo" viewBox="0 0 24 24" aria-hidden="true">
+        <path d="M12 2c1 4 5 5.5 5 10.5A5 5 0 0 1 7 12.5c0-2 1-3.5 2.2-4.6C9.6 10 11 10.6 11 10.6 10.4 7.3 12 4.5 12 2z"/>
+      </svg>
+      <div>
+        <div class="brand-name">VisionGuard</div>
+        <div class="brand-sub">Fire &amp; Smoke Monitoring</div>
+      </div>
+    </div>
+    <nav class="tabs" role="tablist">
+      <a href="#live" class="tab active" data-view="live">
+        <svg viewBox="0 0 24 24"><path d="M4 6h11a1 1 0 0 1 1 1v3l4-3v10l-4-3v3a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V7a1 1 0 0 1 1-1z"/></svg>
+        Live monitor</a>
+      <a href="#incidents" class="tab" data-view="incidents">
+        <svg viewBox="0 0 24 24"><path d="M4 4h16v4H4zM5 10h14v10H5zM9 13h6"/></svg>
+        Incidents <span class="tab-badge" id="incidentCount">0</span></a>
+      <a href="#analytics" class="tab" data-view="analytics">
+        <svg viewBox="0 0 24 24"><path d="M4 20V10M10 20V4M16 20v-7M22 20H2"/></svg>
+        Analytics</a>
+    </nav>
+    <div class="topbar-right">
+      <button class="icon-btn" id="emailBtn" type="button" onclick="var m=document.getElementById('emailModal'); if(m){ m.hidden=false; m.style.display='grid'; } if(typeof loadEmailConfig==='function') loadEmailConfig();" title="Email notifications setup" aria-label="Email notifications">
+        <svg viewBox="0 0 24 24"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
+      </button>
+      <button class="icon-btn" id="helpBtn" title="Keyboard shortcuts (?)">
+        <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M9.5 9.5a2.5 2.5 0 1 1 3.5 2.3c-.6.3-1 .9-1 1.6v.6M12 17h.01"/></svg>
+      </button>
+      <div class="prefs-wrap">
+        <button class="icon-btn" id="prefsBtn" title="Theme & preferences" aria-expanded="false">
+          <svg viewBox="0 0 24 24"><path d="M12 3a9 9 0 1 0 0 18c1.1 0 1.6-.9 1.2-1.8-.5-1-.1-2.2 1.1-2.2H17a4 4 0 0 0 4-4c0-5.5-4-10-9-10z"/><circle cx="7.5" cy="11" r="1.2"/><circle cx="10.5" cy="7" r="1.2"/><circle cx="15.5" cy="7.5" r="1.2"/></svg>
+        </button>
+        <div class="prefs" id="prefs" hidden>
+          <section>
+            <h4>Theme</h4>
+            <div class="theme-opts" id="themeOpts">
+              <button class="theme-opt" data-theme-opt="dark"><span class="theme-swatch sw-dark"></span>Dark</button>
+              <button class="theme-opt" data-theme-opt="light"><span class="theme-swatch sw-light"></span>Light</button>
+              <button class="theme-opt" data-theme-opt="auto"><span class="theme-swatch sw-auto"></span>Auto</button>
+            </div>
+          </section>
+          <section>
+            <h4>Accent colour</h4>
+            <div class="accents" id="accentOpts">
+              <button class="accent-dot" data-accent-opt="blue" title="Blue" style="background:#38bdf8"></button>
+              <button class="accent-dot" data-accent-opt="violet" title="Violet" style="background:#8b5cf6"></button>
+              <button class="accent-dot" data-accent-opt="emerald" title="Emerald" style="background:#10b981"></button>
+              <button class="accent-dot" data-accent-opt="teal" title="Teal" style="background:#14b8a6"></button>
+              <button class="accent-dot" data-accent-opt="indigo" title="Indigo" style="background:#6366f1"></button>
+            </div>
+          </section>
+          <section>
+            <h4>Alerts</h4>
+            <label class="pref-row"><span>Alarm sound</span>
+              <label class="toggle"><input type="checkbox" id="prefSound"><span></span></label></label>
+            <label class="pref-row"><span>Volume</span><input type="range" id="prefVolume" min="0.05" max="1" step="0.05"></label>
+            <label class="pref-row"><span>Desktop notifications</span>
+              <label class="toggle"><input type="checkbox" id="prefNotify"><span></span></label></label>
+            <label class="pref-row"><span>Full-screen alarm</span>
+              <label class="toggle"><input type="checkbox" id="prefAlarm" checked><span></span></label></label>
+            <label class="pref-row"><span>Snooze after acknowledge</span>
+              <select id="prefSnooze">
+                <option value="30">30 s</option><option value="60">1 min</option>
+                <option value="120">2 min</option><option value="300">5 min</option>
+              </select></label>
+          </section>
+        </div>
+      </div>
+      <button class="icon-btn" id="soundBtn" title="Alarm sound on/off (M)" aria-pressed="false">
+        <svg viewBox="0 0 24 24" class="ic-sound-off"><path d="M4 9h4l5-4v14l-5-4H4zM17 9l4 6M21 9l-4 6"/></svg>
+        <svg viewBox="0 0 24 24" class="ic-sound-on"><path d="M4 9h4l5-4v14l-5-4H4zM17 8a5 5 0 0 1 0 8M19.5 5.5a8.5 8.5 0 0 1 0 13"/></svg>
+      </button>
+      <div class="conn" id="conn"><span class="dot"></span><span id="connText">Connecting…</span></div>
+      <div class="clock" id="clock">--:--:--</div>
+    </div>
+  </header>
+
+  <main>
+    <!-- ============================== LIVE ============================== -->
+    <section class="view active" id="view-live">
+      <div class="live-grid">
+        <div class="col-main">
+          <div class="banner banner-idle" id="banner">
+            <div class="banner-icon" id="bannerIcon"></div>
+            <div class="banner-text">
+              <div class="banner-title" id="bannerTitle">System idle</div>
+              <div class="banner-sub" id="bannerSub">Select a video source and press Start</div>
+            </div>
+            <div class="banner-right" id="bannerRight"></div>
+          </div>
+
+          <div class="card video-card">
+            <div class="video-wrap" id="videoWrap">
+              <img id="stream" alt="Processed video stream">
+              <div class="video-empty" id="videoEmpty">
+                <svg viewBox="0 0 64 64"><rect x="6" y="14" width="40" height="36" rx="5"/><path d="M46 26l12-8v28l-12-8z"/><circle cx="26" cy="32" r="7"/></svg>
+                <p>No active camera</p>
+                <span>Choose a test video, upload a file, or connect a webcam / CCTV stream.</span>
+              </div>
+              <div class="video-overlay top-left">
+                <span class="pill pill-live" id="livePill"><span class="rec"></span>LIVE</span>
+                <span class="pill" id="camPill">—</span>
+              </div>
+              <div class="video-overlay top-right">
+                <span class="pill mono" id="timePill">t = 0.0 s</span>
+                <span class="pill mono" id="fpsPill">0.0 FPS</span>
+              </div>
+              <div class="video-tools">
+                <button class="vt-btn" id="snapBtn" title="Save snapshot (S)">
+                  <svg viewBox="0 0 24 24"><path d="M4 8h3l2-3h6l2 3h3v11H4z"/><circle cx="12" cy="13" r="3.5"/></svg></button>
+                <button class="vt-btn" id="fsBtn" title="Fullscreen (F)">
+                  <svg viewBox="0 0 24 24"><path d="M4 9V4h5M20 9V4h-5M4 15v5h5M20 15v5h-5"/></svg></button>
+              </div>
+              <div class="video-progress"><div id="progressBar"></div><span id="tlMarks"></span></div>
+            </div>
+          </div>
+
+          <div class="split-2">
+            <div class="card">
+              <div class="card-head">
+                <h3>Detection confidence</h3>
+                <div class="legend"><span class="lg lg-fire"></span>Fire <span class="lg lg-smoke"></span>Smoke <span class="lg lg-thr"></span>Threshold</div>
+              </div>
+              <canvas id="chart" height="150"></canvas>
+            </div>
+            <div class="card">
+              <div class="card-head">
+                <h3>Multi-frame confirmation</h3>
+                <span class="muted small" id="confirmRule">7 of last 10 frames</span>
+              </div>
+              <div class="meter-row">
+                <div class="meter-label"><span class="chip chip-fire">FIRE</span></div>
+                <div class="meter" id="meterFire"></div>
+                <div class="meter-val mono" id="meterFireVal">0/10</div>
+              </div>
+              <div class="meter-row">
+                <div class="meter-label"><span class="chip chip-smoke">SMOKE</span></div>
+                <div class="meter" id="meterSmoke"></div>
+                <div class="meter-val mono" id="meterSmokeVal">0/10</div>
+              </div>
+              <p class="muted small explain">An alert is raised only when fire or smoke is detected in enough
+                consecutive analysed frames. Single-frame detections from reflections, lights or dust are ignored.
+                <span id="rejectedText"></span></p>
+            </div>
+          </div>
+        </div>
+
+        <aside class="col-side">
+          <div class="card control-card">
+            <div class="card-head"><h3>Video source</h3><span class="status-chip" id="runChip">Idle</span></div>
+            <div class="seg" id="srcTabs">
+              <button class="seg-btn active" data-src="dataset">Dataset</button>
+              <button class="seg-btn" data-src="upload">Upload</button>
+              <button class="seg-btn" data-src="webcam">Webcam</button>
+              <button class="seg-btn" data-src="rtsp">CCTV</button>
+            </div>
+            <div class="src-pane active" data-pane="dataset">
+              <label class="field"><span>Test video</span>
+                <select id="videoSelect"></select></label>
+              <div class="hint" id="videoHint"></div>
+            </div>
+            <div class="src-pane" data-pane="upload">
+              <label class="drop" id="drop">
+                <input type="file" id="fileInput" accept="video/*,.avi,.mkv,.wmv">
+                <svg viewBox="0 0 24 24"><path d="M12 16V4M7 9l5-5 5 5M4 16v3a1 1 0 0 0 1 1h14a1 1 0 0 0 1-1v-3"/></svg>
+                <span id="dropText">Drop a video here or <u>browse</u></span>
+              </label>
+              <div class="upload-progress" id="uploadProgress"><div></div></div>
+            </div>
+            <div class="src-pane" data-pane="webcam">
+              <label class="field"><span>Webcam index</span>
+                <input type="number" id="webcamIndex" min="0" max="10" value="0"></label>
+              <div class="hint">0 = built-in camera, 1 = first USB camera.</div>
+            </div>
+            <div class="src-pane" data-pane="rtsp">
+              <label class="field"><span>Stream URL</span>
+                <input type="text" id="rtspUrl" placeholder="rtsp://user:pass@192.168.1.10:554/stream"></label>
+              <div class="hint">RTSP or HTTP stream from an IP / CCTV camera.</div>
+            </div>
+
+            <label class="field"><span>Camera name</span>
+              <input type="text" id="cameraName" value="Warehouse Camera 1"></label>
+
+            <details class="advanced">
+              <summary>Detection settings</summary>
+              <label class="field"><span>Model</span><select id="modelSelect"></select></label>
+              <div class="slider"><div class="slider-head"><span>Confidence threshold</span><b id="confVal"></b></div>
+                <input type="range" id="conf" min="0.1" max="0.9" step="0.05"></div>
+              <div class="slider"><div class="slider-head"><span>Frames analysed / second</span><b id="fpsVal"></b></div>
+                <input type="range" id="sampleFps" min="1" max="15" step="1"></div>
+              <div class="slider"><div class="slider-head"><span>Confirmation window</span><b id="winVal"></b></div>
+                <input type="range" id="window" min="3" max="30" step="1"></div>
+              <div class="slider"><div class="slider-head"><span>Frames needed to confirm</span><b id="hitsVal"></b></div>
+                <input type="range" id="minHits" min="1" max="30" step="1"></div>
+              <label class="toggle"><input type="checkbox" id="realtime" checked><span></span>Play files at real speed</label>
+              <div class="pref-row" style="margin-top: 10px; padding-top: 8px; border-top: 1px solid var(--line);">
+                <label class="toggle" style="font-size: 13px; font-weight: 500;"><input type="checkbox" id="emailAlerts"><span></span>Email alerts</label>
+                <button type="button" class="btn btn-ghost btn-sm" id="cfgEmailBtn" onclick="var m=document.getElementById('emailModal'); if(m){ m.hidden=false; m.style.display='grid'; } if(typeof loadEmailConfig==='function') loadEmailConfig();" style="padding: 2px 8px; font-size: 11px;">Setup SMTP</button>
+              </div>
+            </details>
+
+            <div class="btn-row">
+              <button class="btn btn-primary" id="startBtn">
+                <svg viewBox="0 0 24 24"><path d="M7 5l12 7-12 7z"/></svg>Start monitoring</button>
+              <button class="btn btn-ghost" id="stopBtn" disabled>
+                <svg viewBox="0 0 24 24"><rect x="6" y="6" width="12" height="12" rx="1"/></svg>Stop</button>
+            </div>
+          </div>
+
+          <div class="kpis">
+            <div class="kpi"><div class="kpi-label">Camera</div><div class="kpi-value" id="kCamera">Idle</div></div>
+            <div class="kpi"><div class="kpi-label">Status</div><div class="kpi-value" id="kStatus">Normal</div></div>
+            <div class="kpi kpi-fire"><div class="kpi-label">🔥 Fire</div><div class="kpi-value" id="kFire">0</div><div class="kpi-sub" id="kFireSub">detections now</div></div>
+            <div class="kpi kpi-smoke"><div class="kpi-label">💨 Smoke</div><div class="kpi-value" id="kSmoke">0</div><div class="kpi-sub" id="kSmokeSub">detections now</div></div>
+            <div class="kpi"><div class="kpi-label">Active alerts</div><div class="kpi-value" id="kActive">0</div></div>
+            <div class="kpi"><div class="kpi-label">Confidence</div><div class="kpi-value" id="kConf">–</div></div>
+          </div>
+
+          <div class="card alerts-card">
+            <div class="card-head"><h3>Alerts</h3><span class="muted small" id="alertCount">0 this session</span></div>
+            <div class="alert-list" id="alertList">
+              <div class="empty-small">No alerts. All clear.</div>
+            </div>
+          </div>
+        </aside>
+      </div>
+    </section>
+
+    <!-- ============================== INCIDENTS ============================== -->
+    <section class="view" id="view-incidents">
+      <div class="page-head">
+        <div>
+          <h2>Incident history</h2>
+          <p class="muted">Every confirmed fire or smoke event, with its detection frame and video clip.</p>
+        </div>
+        <div class="toolbar">
+          <div class="seg seg-sm" id="incFilter">
+            <button class="seg-btn active" data-f="all">All</button>
+            <button class="seg-btn" data-f="fire">Fire</button>
+            <button class="seg-btn" data-f="smoke">Smoke</button>
+          </div>
+          <select id="incReview" style="width:auto">
+            <option value="all">All reviews</option>
+            <option value="PENDING">Not reviewed</option>
+            <option value="CONFIRMED">Confirmed fire</option>
+            <option value="CONFIRMED_SMOKE">Confirmed smoke</option>
+            <option value="FALSE_ALARM">False alarm</option>
+          </select>
+          <input type="search" id="incSearch" placeholder="Search camera, source or note…">
+          <button class="btn btn-ghost btn-sm" id="incRefresh">Refresh</button>
+          <a class="btn btn-ghost btn-sm" id="incExport" href="/api/incidents.csv" download>Export CSV</a>
+          <button class="btn btn-danger btn-sm" id="incClear">Clear history</button>
+        </div>
+      </div>
+      <div class="inc-stats" id="incStats"></div>
+      <div class="inc-grid" id="incGrid"></div>
+    </section>
+
+    <!-- ============================== ANALYTICS ============================== -->
+    <section class="view" id="view-analytics">
+      <div class="page-head">
+        <div>
+          <h2>Live incident statistics</h2>
+          <p class="muted">From the incident history, updated live. Review incidents to measure the real false-alarm rate.</p>
+        </div>
+      </div>
+      <div class="stats-grid">
+        <div class="card">
+          <div class="card-head"><h3>Incidents per day (last 14 days)</h3>
+            <div class="legend"><span class="lg lg-fire"></span>Fire <span class="lg lg-smoke"></span>Smoke</div></div>
+          <div class="bars" id="statDays"></div>
+        </div>
+        <div class="card">
+          <div class="card-head"><h3>Fire vs smoke</h3></div>
+          <div class="donut-wrap" id="statType"></div>
+        </div>
+        <div class="card">
+          <div class="card-head"><h3>Operator review</h3></div>
+          <div class="donut-wrap" id="statReview"></div>
+        </div>
+      </div>
+      <div class="page-head">
+        <div>
+          <h2>System evaluation</h2>
+          <p class="muted" id="anSettings">Full pipeline on unseen test videos.</p>
+        </div>
+      </div>
+      <div class="an-kpis" id="anKpis"></div>
+      <div class="split-2 an-split">
+        <div class="card">
+          <div class="card-head"><h3>Per-video results (test set)</h3><span class="muted small" id="anVideoCount"></span></div>
+          <div class="table-wrap"><table class="table" id="anVideos"></table></div>
+        </div>
+        <div class="an-side">
+          <div class="card">
+            <div class="card-head"><h3>Model: D-Fire test images</h3><span class="muted small" id="anSelected"></span></div>
+            <div class="table-wrap"><table class="table" id="anModel"></table></div>
+          </div>
+          <div class="card">
+            <div class="card-head"><h3>Settings sweep (validation)</h3></div>
+            <div class="table-wrap"><table class="table" id="anSweep"></table></div>
+          </div>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-head"><h3>Confusion matrices</h3></div>
+        <div class="cm-grid" id="anCm"></div>
+      </div>
+    </section>
+  </main>
+
+  <!-- full-screen alert -->
+  <div class="alarm" id="alarm" hidden>
+    <div class="alarm-box">
+      <div class="alarm-icon" id="alarmIcon">🔥</div>
+      <div class="alarm-title" id="alarmTitle">FIRE DETECTED</div>
+      <div class="alarm-grid">
+        <div><span>Camera</span><b id="aCamera"></b></div>
+        <div><span>Confidence</span><b id="aConf"></b></div>
+        <div><span>Time</span><b id="aTime"></b></div>
+        <div><span>Severity</span><b id="aSev"></b></div>
+      </div>
+      <img id="aSnap" alt="">
+      <button class="btn btn-light" id="ackBtn">Acknowledge</button>
+    </div>
+  </div>
+
+  <!-- incident modal -->
+  <div class="modal" id="modal" hidden>
+    <div class="modal-box">
+      <button class="icon-btn modal-close" id="modalClose" aria-label="Close">✕</button>
+      <div class="modal-media">
+        <video id="mVideo" controls autoplay muted loop playsinline></video>
+        <img id="mImg" alt="Detection frame">
+      </div>
+      <div class="modal-info" id="mInfo"></div>
+    </div>
+  </div>
+
+  <!-- keyboard shortcuts -->
+  <div class="modal" id="help" hidden>
+    <div class="modal-box help-box">
+      <button class="icon-btn modal-close" data-close="help" aria-label="Close">✕</button>
+      <h3 style="font-size:18px">Keyboard shortcuts</h3>
+      <div class="kbd-list">
+        <kbd>Space</kbd><span>Start / stop monitoring</span>
+        <kbd>F</kbd><span>Fullscreen video</span>
+        <kbd>S</kbd><span>Save a snapshot of the video</span>
+        <kbd>M</kbd><span>Alarm sound on / off</span>
+        <kbd>T</kbd><span>Switch theme (dark / light)</span>
+        <kbd>1</kbd><span>Live monitor</span>
+        <kbd>2</kbd><span>Incidents</span>
+        <kbd>3</kbd><span>Analytics</span>
+        <kbd>Esc</kbd><span>Acknowledge alarm / close window</span>
+        <kbd>?</kbd><span>Show this help</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- email settings modal -->
+  <div class="modal" id="emailModal" hidden onclick="if(event.target===this){ this.hidden=true; this.style.display='none'; }">
+    <div class="modal-box" style="width: min(520px, 94vw); max-width: 520px; max-height: 90vh; overflow-y: auto; grid-template-columns: 1fr; padding: 22px; display: block;">
+      <button class="icon-btn modal-close" data-close="emailModal" onclick="var m=document.getElementById('emailModal'); m.hidden=true; m.style.display='none';" aria-label="Close">✕</button>
+      <div style="display:flex; align-items:center; gap:12px; margin-bottom: 14px;">
+        <div style="width:38px; height:38px; border-radius:10px; background:var(--accent-soft); display:grid; place-items:center; color:var(--accent);">
+          <svg viewBox="0 0 24 24" style="width:20px; height:20px;"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
+        </div>
+        <div>
+          <h3 style="font-size:18px; margin:0;">Email Alert Notifications</h3>
+          <span class="muted small">Sends instant email with snapshot on confirmed fire / smoke</span>
+        </div>
+      </div>
+
+      <div style="display:flex; flex-direction:column; gap:12px;">
+        <label class="pref-row" style="background:var(--bg-2); padding:10px 14px; border-radius:var(--radius-sm); border:1px solid var(--line); margin: 0;">
+          <div>
+            <b style="display:block; font-size:13px;">Enable Email Alerts</b>
+            <span class="muted small">Send mail when confirmed incident starts</span>
+          </div>
+          <label class="toggle"><input type="checkbox" id="mEmailEnabled"><span></span></label>
+        </label>
+
+        <label class="field" style="margin: 0;">
+          <span>Send alerts to (Recipient Email) *</span>
+          <input type="email" id="mEmailTo" placeholder="safety-officer@example.com">
+        </label>
+
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-top:2px;">
+          <span class="muted small">Quick SMTP Presets:</span>
+          <div style="display:flex; gap:6px;">
+            <button type="button" class="btn btn-ghost btn-sm" id="presetGmail" style="padding:2px 8px; font-size:11px;">Gmail</button>
+            <button type="button" class="btn btn-ghost btn-sm" id="presetOutlook" style="padding:2px 8px; font-size:11px;">Outlook</button>
+            <button type="button" class="btn btn-ghost btn-sm" id="presetCustom" style="padding:2px 8px; font-size:11px;">Custom</button>
+          </div>
+        </div>
+
+        <div style="display:grid; grid-template-columns: 2fr 1fr; gap:10px;">
+          <label class="field" style="margin: 0;">
+            <span>SMTP Host *</span>
+            <input type="text" id="mEmailHost" placeholder="smtp.gmail.com">
+          </label>
+          <label class="field" style="margin: 0;">
+            <span>Port</span>
+            <input type="number" id="mEmailPort" value="587">
+          </label>
+        </div>
+
+        <label class="field" style="margin: 0;">
+          <span>Sender Email / Username *</span>
+          <input type="text" id="mEmailUser" placeholder="your-email@gmail.com">
+        </label>
+
+        <label class="field" style="margin: 0;">
+          <span>SMTP Password / App Password *</span>
+          <div style="display:flex; gap:6px;">
+            <input type="password" id="mEmailPassword" placeholder="••••••••••••••••" style="flex:1;">
+            <button type="button" class="btn btn-ghost btn-sm" id="togglePwdBtn" style="padding:0 10px;" title="Show / hide password">👁</button>
+          </div>
+          <span class="hint" id="mEmailPwdHint">For Gmail: Use a 16-character <b>App Password</b> from Google Account &rarr; Security &rarr; 2-Step Verification &rarr; App passwords.</span>
+        </label>
+
+        <div id="emailTestFeedback" style="font-size:12.5px; padding:10px 12px; border-radius:6px; display:none; line-height:1.4;"></div>
+
+        <div style="display:flex; gap:10px; margin-top:8px; justify-content:flex-end;">
+          <button type="button" class="btn btn-ghost" id="mEmailTestBtn">
+            <svg viewBox="0 0 24 24" style="width:14px; height:14px;"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
+            Send Test Email
+          </button>
+          <button type="button" class="btn btn-primary" id="mEmailSaveBtn">Save Settings</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="toasts" id="toasts"></div>
+  <script src="/static/app.js?v=4"></script>
+</body>
+</html>

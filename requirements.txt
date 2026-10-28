@@ -1,0 +1,13 @@
+# pinned so ultralytics/streamlit don't pull numpy 2 / OpenCV 4.11+ (breaks pandas 1.x)
+numpy>=1.24,<2
+opencv-python>=4.8,<4.11
+requests>=2.28
+pandas>=1.5
+pyarrow>=12               # reading D-Fire (training only)
+ultralytics>=8.3          # YOLO training / inference (Member 2, 3)
+onnxruntime>=1.16         # fast CPU inference of models/fire_smoke.onnx
+onnx>=1.16                # exporting to ONNX (training only)
+protobuf>=6.31,<7         # compatible with onnx and streamlit >= 1.40
+fastapi>=0.115             # web dashboard backend (Member 4)
+uvicorn>=0.30
+streamlit>=1.40           # optional: simple Streamlit dashboard (dashboard/app.py)

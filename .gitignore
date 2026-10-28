@@ -1,0 +1,24 @@
+# Tracked data: the video dataset (data/raw/<source>/, videos via Git LFS), extracted frames,
+# annotation frames and metadata. Everything below is a duplicate or can be rebuilt:
+#   python -m dataset_prep.run_all --skip-download   -> data/raw/videos, data/videos, data/organized
+#   python -m training.prepare_dfire                 -> data/dfire_yolo (D-Fire training images)
+data/raw/
+data/raw/videos/
+data/videos/
+data/organized/
+data/dfire_yolo/
+data/raw_images/
+data/yolo/
+*.zip
+*.part
+*.seg*
+# training runs, incident media/database and intermediate model files
+runs/
+incidents/
+models/*
+!models/fire_smoke.pt
+!models/fire_smoke.onnx
+__pycache__/
+*.pyc
+email_config.json
+.git_old/
