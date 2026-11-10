@@ -23,7 +23,13 @@ from vision.detector import Detector  # noqa: E402
 from vision.incidents import IncidentStore  # noqa: E402
 from vision.pipeline import VideoProcessor  # noqa: E402
 
-st.set_page_config(page_title="VisionGuard", page_icon="🔥", layout="wide")
+LOGO_PATH = ROOT / "webapp" / "static" / "logo.png"
+
+st.set_page_config(
+    page_title="VisionGuard",
+    page_icon=str(LOGO_PATH) if LOGO_PATH.exists() else "🔥",
+    layout="wide",
+)
 st.markdown("""
 <style>
 .alert-box {padding: 14px 18px; border-radius: 8px; font-size: 1.35rem; font-weight: 700; color: white; margin-bottom: 8px}
@@ -52,7 +58,9 @@ def banner(status):
 
 
 # ---------------------------------------------------------------- sidebar
-st.sidebar.title("🔥 VisionGuard")
+if LOGO_PATH.exists():
+    st.sidebar.image(str(LOGO_PATH), width=72)
+st.sidebar.title("VisionGuard")
 st.sidebar.caption("Fire & smoke detection for CCTV")
 
 src_type = st.sidebar.radio("Video source", ["Test video", "Upload video", "Webcam", "CCTV / RTSP URL"])

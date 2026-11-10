@@ -65,7 +65,7 @@ button, input, select { font: inherit; color: inherit; }
   border-bottom: 1px solid var(--line);
 }
 .brand { display: flex; align-items: center; gap: 12px; min-width: 220px; }
-.brand-logo { width: 34px; height: 34px; fill: var(--fire); stroke: none; filter: drop-shadow(0 0 10px rgba(255, 77, 61, .55)); }
+.brand-logo { width: 38px; height: 38px; object-fit: contain; border-radius: 8px; filter: drop-shadow(0 0 10px rgba(255, 77, 61, .55)); }
 .brand-name { font-weight: 750; font-size: 18px; letter-spacing: -.02em; }
 .brand-sub { color: var(--muted); font-size: 11.5px; text-transform: uppercase; letter-spacing: .09em; }
 
